@@ -1,0 +1,30 @@
+[package]
+name = "os"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "os"
+test = true
+bench = false
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+
+[dependencies]
+bootloader = "0.9"
+volatile = "0.2.6"
+lazy_static = { version = "1.0", features = ["spin_no_std"] }
+spin = "0.5.2"
+x86_64 = "0.15.5"
+uart_16550 = "0.6.0"
+
+[package.metadata.bootimage]
+test-args = [
+    "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio",
+    "-display", "none"
+]
+test-timeout = 10   
