@@ -7,13 +7,21 @@
 
 use core::panic::PanicInfo;
 
-mod vga_buffer;
+// 모듈은 lib.rs에서만 선언하고, main.rs는 os::... 로 가져다 씀
+// pub이어야 main.rs에서 println!/serial_println! 매크로가 동작함
+pub mod graphics;
+pub mod interrupts;
+pub mod serial;
+pub mod vga_buffer;
 
-mod serial;
+pub fn init() {
+    interrupts::init_idt();
+}
 
-static HELLO: &[u8] = b"Hello World!";
+// ---------- 테스트 프레임워크 (main.rs도 같이 씀) ----------
+
 pub trait Testable {
-    fn run(&self) -> ();
+    fn run(&self);
 }
 
 impl<T> Testable for T
@@ -27,31 +35,20 @@ where
     }
 }
 
+// #[cfg(test)]를 빼야 main.rs의 테스트에서 os::test_runner로 쓸 수 있음
+pub fn test_runner(tests: &[&dyn Testable]) {
+    serial_println!("Running {} tests", tests.len());
+    for test in tests {
+        test.run();
+    }
+    exit_qemu(QemuExitCode::Success);
+}
 
 pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failed);
     loop {}
-}
-
-/// Entry point for `cargo test`
-
-
-#[cfg(test)]
-#[unsafe(no_mangle)] // 이 함수의 이름을 mangle하지 않습니다
-pub extern "C" fn _start() -> ! {
-    println!("Hello World{}", "!");
-    init(); 
-    #[cfg(test)]
-    test_main();
-
-    loop {}
-}
-
-#[test_case]
-fn trivial_assertion() {
-    assert_eq!(1, 1);
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -70,35 +67,20 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
     }
 }
 
-// our existing panic handler
-#[cfg(not(test))] // new attribute
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
+// ---------- `cargo test --lib` 전용 ----------
+
+/// Entry point for `cargo test`
+#[cfg(test)]
+#[unsafe(no_mangle)]
+pub extern "C" fn _start() -> ! {
+    init();
+    test_main();
     loop {}
 }
 
-// our panic handler in test mode
+// 일반 모드 panic handler는 main.rs가 담당 (여기 두면 main.rs 테스트 실패 시 멈춰버림)
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    serial_println!("[failed]\n");
-    serial_println!("Error: {}\n", info);
-    exit_qemu(QemuExitCode::Failed);
-    loop {}
-}
-
-#[cfg(test)]
-pub fn test_runner(tests: &[&dyn Testable]) { // new
-    serial_println!("Running {} tests", tests.len());
-    for test in tests {
-        test.run(); // new
-    }
-    exit_qemu(QemuExitCode::Success);
-}
-
-pub mod interrupts;
-
-pub fn init() {
-    interrupts::init_idt();
+    test_panic_handler(info)
 }
