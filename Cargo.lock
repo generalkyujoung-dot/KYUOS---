@@ -20,7 +20,7 @@ version = "0.9.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e22d5a0b9e11dd5bee9d24a68885de6dc7ed367f897323b1c1286150fd469374"
 dependencies = [
- "font8x8",
+ "font8x8 0.2.7",
 ]
 
 [[package]]
@@ -36,6 +36,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e63201c624b8c8883921b1a1accc8916c4fa9dbfb15d122b26e4dde945b86bbf"
 
 [[package]]
+name = "font8x8"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "875488b8711a968268c7cf5d139578713097ca4635a76044e8fe8eedf831d07e"
+
+[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -49,10 +55,28 @@ name = "os"
 version = "0.1.0"
 dependencies = [
  "bootloader",
+ "font8x8 0.3.1",
  "lazy_static",
+ "pc-keyboard",
+ "pic8259",
  "spin 0.5.2",
  "uart_16550",
  "volatile 0.2.7",
+ "x86_64",
+]
+
+[[package]]
+name = "pc-keyboard"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed089a1fbffe3337a1a345501c981f1eb1e47e69de5a40e852433e12953c3174"
+
+[[package]]
+name = "pic8259"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "62d9a86c292b165f757e47e7fd66855def189b2564609bc4203727b27c33db22"
+dependencies = [
  "x86_64",
 ]
 

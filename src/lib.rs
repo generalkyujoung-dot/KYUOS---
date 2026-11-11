@@ -11,11 +11,21 @@ use core::panic::PanicInfo;
 // pub이어야 main.rs에서 println!/serial_println! 매크로가 동작함
 pub mod graphics;
 pub mod interrupts;
+pub mod keyboard;
+pub mod login;
 pub mod serial;
 pub mod vga_buffer;
 
 pub fn init() {
     interrupts::init_idt();
+    interrupts::init_hardware_interrupts(); // 타이머 + 키보드
+}
+
+/// 할 일이 없을 때 CPU를 재우면서 무한 대기
+pub fn hlt_loop() -> ! {
+    loop {
+        interrupts::wait_for_interrupt();
+    }
 }
 
 // ---------- 테스트 프레임워크 (main.rs도 같이 씀) ----------

@@ -21,6 +21,9 @@ lazy_static = { version = "1.0", features = ["spin_no_std"] }
 spin = "0.5.2"
 x86_64 = "0.15.5"
 uart_16550 = "0.6.0"
+font8x8 = { version = "0.3", default-features = false, features = ["unicode"] }
+pic8259 = "0.11"        # 8259 PIC (하드웨어 인터럽트 컨트롤러)
+pc-keyboard = "0.7.0"   # 스캔코드 -> 글자 변환
 
 [package.metadata.bootimage]
 run-args = ["-serial", "stdio"]
